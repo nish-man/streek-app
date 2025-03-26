@@ -24,34 +24,9 @@ export function Welcome() {
       const result = await signIn("credentials", {
         email,
         password,
-        redirect: false,
+        callbackUrl: "/",
+        redirect: true,
       })
-
-      if (result?.error) {
-        throw new Error(result.error)
-      }
-
-      // Show welcome notification
-      toast({
-        title: "Welcome to Streek!",
-        description: "Start tracking your fitness journey today.",
-        duration: 5000,
-      })
-
-      // Mock push notification permission request
-      if ("Notification" in window) {
-        Notification.requestPermission().then((permission) => {
-          if (permission === "granted") {
-            setTimeout(() => {
-              toast({
-                title: "Push Notifications Enabled",
-                description: "You'll receive daily reminders for your activities.",
-                duration: 5000,
-              })
-            }, 2000)
-          }
-        })
-      }
     } catch (error) {
       console.error("Login error:", error)
       toast({
@@ -62,8 +37,17 @@ export function Welcome() {
     }
   }
 
-  const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/" })
+  const handleGoogleSignIn = async () => {
+    try {
+      await signIn("google", { callbackUrl: "/" })
+    } catch (error) {
+      console.error("Google sign in error:", error)
+      toast({
+        title: "Login Failed",
+        description: "Could not sign in with Google. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -127,6 +111,25 @@ export function Welcome() {
                     <Button type="submit" className="w-full bg-primary hover:bg-primary-dark">
                       Login
                     </Button>
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleGoogleSignIn}
+                    >
+                      <FcGoogle className="mr-2 h-5 w-5" />
+                      Continue with Google
+                    </Button>
                   </form>
                 </TabsContent>
                 
@@ -163,6 +166,25 @@ export function Welcome() {
                     </div>
                     <Button type="submit" className="w-full bg-primary hover:bg-primary-dark">
                       Sign Up
+                    </Button>
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleGoogleSignIn}
+                    >
+                      <FcGoogle className="mr-2 h-5 w-5" />
+                      Continue with Google
                     </Button>
                   </form>
                 </TabsContent>
