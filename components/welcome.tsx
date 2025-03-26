@@ -11,39 +11,59 @@ import { Dumbbell, Trophy, CheckCircle2, ArrowRight, MailIcon, LockIcon } from "
 import { AnimatedLogo } from "./animated-logo"
 import { FitnessBackground } from "./fitness-background"
 import { signIn } from "next-auth/react"
+import { useToast } from "@/hooks/use-toast"
 
-interface WelcomeProps {
-  onLogin: (email: string, password: string) => Promise<void>
-}
-
-export function Welcome({ onLogin }: WelcomeProps) {
-  const [loading, setLoading] = useState(false)
-  const [activeTab, setActiveTab] = useState("login")
+export function Welcome() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
-
-  const handleGoogleLogin = async () => {
-    setLoading(true)
-    try {
-      await signIn("google", { callbackUrl: "/" })
-    } catch (error) {
-      console.error("Google login failed:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { toast } = useToast()
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     try {
-      await onLogin(email, password)
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      })
+
+      if (result?.error) {
+        throw new Error(result.error)
+      }
+
+      // Show welcome notification
+      toast({
+        title: "Welcome to Streek!",
+        description: "Start tracking your fitness journey today.",
+        duration: 5000,
+      })
+
+      // Mock push notification permission request
+      if ("Notification" in window) {
+        Notification.requestPermission().then((permission) => {
+          if (permission === "granted") {
+            setTimeout(() => {
+              toast({
+                title: "Push Notifications Enabled",
+                description: "You'll receive daily reminders for your activities.",
+                duration: 5000,
+              })
+            }, 2000)
+          }
+        })
+      }
     } catch (error) {
-      console.error("Login failed:", error)
-    } finally {
-      setLoading(false)
+      console.error("Login error:", error)
+      toast({
+        title: "Login Failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
+      })
     }
+  }
+
+  const handleGoogleSignIn = () => {
+    signIn("google", { callbackUrl: "/" })
   }
 
   return (
@@ -64,7 +84,7 @@ export function Welcome({ onLogin }: WelcomeProps) {
 
             {/* App body */}
             <div className="p-6">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-6">
                   <TabsTrigger value="login">Login</TabsTrigger>
                   <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -104,49 +124,14 @@ export function Welcome({ onLogin }: WelcomeProps) {
                         />
                       </div>
                     </div>
-                    <Button type="submit" className="w-full bg-primary hover:bg-primary-dark" disabled={loading}>
-                      {loading ? (
-                        <>
-                          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                          Please wait
-                        </>
-                      ) : (
-                        <>Sign In <ArrowRight className="ml-2 h-4 w-4" /></>
-                      )}
-                    </Button>
-
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                      </div>
-                    </div>
-
-                    <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={loading}>
-                      {loading ? (
-                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-r-transparent"></div>
-                      ) : (
-                        <FcGoogle className="mr-2 h-5 w-5" />
-                      )}
-                      Google
+                    <Button type="submit" className="w-full bg-primary hover:bg-primary-dark">
+                      Login
                     </Button>
                   </form>
                 </TabsContent>
                 
                 <TabsContent value="signup" className="mt-0">
                   <form onSubmit={handleFormSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="signup-name">Full Name</Label>
-                      <Input 
-                        id="signup-name" 
-                        placeholder="John Doe" 
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                      />
-                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="signup-email">Email</Label>
                       <div className="relative">
@@ -176,29 +161,8 @@ export function Welcome({ onLogin }: WelcomeProps) {
                         />
                       </div>
                     </div>
-                    <Button type="submit" className="w-full bg-primary hover:bg-primary-dark" disabled={loading}>
-                      {loading ? (
-                        <>
-                          <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
-                          Creating account
-                        </>
-                      ) : (
-                        <>Create Account <ArrowRight className="ml-2 h-4 w-4" /></>
-                      )}
-                    </Button>
-
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-                      </div>
-                    </div>
-
-                    <Button variant="outline" className="w-full" onClick={handleGoogleLogin} disabled={loading}>
-                      <FcGoogle className="mr-2 h-5 w-5" />
-                      Google
+                    <Button type="submit" className="w-full bg-primary hover:bg-primary-dark">
+                      Sign Up
                     </Button>
                   </form>
                 </TabsContent>

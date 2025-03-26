@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 import { Challenges } from "@/components/challenges"
 import { Analytics } from "@/components/analytics"
 import { Profile } from "@/components/profile"
@@ -8,64 +9,12 @@ import { BottomNav } from "@/components/bottom-nav"
 import { Rewards } from "@/components/rewards"
 import { Community } from "@/components/community"
 import { Welcome } from "@/components/welcome"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/contexts/auth-context"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("challenges")
-  const { isAuthenticated, isLoading, login } = useAuth()
-  const { toast } = useToast()
+  const { data: session, status } = useSession()
 
-  // Handle successful login
-  const handleLogin = async (email: string, password: string) => {
-    try {
-      // TODO: Replace with actual API call
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Login failed")
-      }
-
-      const data = await response.json()
-      login(data.token, data.user)
-
-      // Show welcome notification
-      toast({
-        title: "Welcome to Streek!",
-        description: "Start tracking your fitness journey today.",
-        duration: 5000,
-      })
-
-      // Mock push notification permission request
-      if ("Notification" in window) {
-        Notification.requestPermission().then((permission) => {
-          if (permission === "granted") {
-            setTimeout(() => {
-              toast({
-                title: "Push Notifications Enabled",
-                description: "You'll receive daily reminders for your activities.",
-                duration: 5000,
-              })
-            }, 2000)
-          }
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Login Failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive",
-      })
-    }
-  }
-
-  if (isLoading) {
+  if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
@@ -73,8 +22,8 @@ export default function Home() {
     )
   }
 
-  if (!isAuthenticated) {
-    return <Welcome onLogin={handleLogin} />
+  if (!session) {
+    return <Welcome />
   }
 
   return (
