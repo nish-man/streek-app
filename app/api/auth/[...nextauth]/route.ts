@@ -10,6 +10,9 @@ declare module "next-auth" {
   }
 }
 
+// NextAuth configuration with Google OAuth and Credentials providers
+// The secret is used to encrypt cookies and tokens
+// Debug mode is enabled in development for better error messages
 const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   debug: process.env.NODE_ENV === "development",
