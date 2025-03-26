@@ -11,6 +11,8 @@ declare module "next-auth" {
 }
 
 const handler = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === "development",
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
