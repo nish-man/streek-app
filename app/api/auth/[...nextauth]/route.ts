@@ -1,10 +1,12 @@
-import NextAuth, { Session, DefaultSession, DefaultUser } from "next-auth"
+import NextAuth, { DefaultSession } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 import CredentialsProvider from "next-auth/providers/credentials"
 
-interface ExtendedSession extends Session {
-  user?: DefaultSession["user"] & {
-    id?: string
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string
+    } & DefaultSession["user"]
   }
 }
 
@@ -15,36 +17,32 @@ const handler = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
     CredentialsProvider({
-      name: "credentials",
+      name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null
-        }
-
-        // TODO: Replace with actual API call to your backend
-        // This is a temporary mock implementation
-        if (credentials.email === "test@example.com" && credentials.password === "password") {
+        // This is a mock implementation. Replace with your actual authentication logic
+        if (credentials?.email === "test@example.com" && credentials?.password === "password") {
           return {
             id: "1",
-            email: credentials.email,
             name: "Test User",
+            email: "test@example.com",
+            image: "https://avatars.githubusercontent.com/u/1234567",
           }
         }
         return null
       }
     })
   ],
+  pages: {
+    signIn: "/",
+  },
   callbacks: {
-    async session({ session, token }: { session: ExtendedSession; token: any }) {
-      if (session.user) {
+    async session({ session, token }) {
+      if (session.user && token.sub) {
         session.user.id = token.sub
-        session.user.name = token.name
-        session.user.email = token.email
-        session.user.image = token.picture
       }
       return session
     },
