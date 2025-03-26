@@ -6,11 +6,12 @@ import { Toaster } from "@/components/ui/toaster"
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <SessionProvider>
+    <SessionProvider refetchInterval={0}>
       <ThemeProvider
         attribute="class"
         defaultTheme="light"
         disableTransitionOnChange
+        enableSystem
       >
         {children}
         <Toaster />

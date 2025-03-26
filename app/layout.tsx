@@ -8,7 +8,6 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: 'Streek - Your Fitness Accountability Partner',
   description: 'Track your fitness journey, build streaks, and achieve your goals with Streek.',
-  generator: 'v0.dev',
 }
 
 export default function RootLayout({
@@ -18,7 +17,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className={`${inter.className} min-h-screen bg-background antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>
