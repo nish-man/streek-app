@@ -17,6 +17,7 @@ interface Activity {
 
 export function History() {
   const [filter, setFilter] = useState("weekly")
+  const [activityType, setActivityType] = useState("running")
   const [activities, setActivities] = useState<Activity[]>([
     {
       id: "1",
@@ -74,13 +75,13 @@ export function History() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="weekly" className="mt-4">
-          <ActivityChart filter="weekly" />
+          <ActivityChart filter="weekly" activityType={activityType} />
         </TabsContent>
         <TabsContent value="monthly" className="mt-4">
-          <ActivityChart filter="monthly" />
+          <ActivityChart filter="monthly" activityType={activityType} />
         </TabsContent>
         <TabsContent value="yearly" className="mt-4">
-          <ActivityChart filter="yearly" />
+          <ActivityChart filter="yearly" activityType={activityType} />
         </TabsContent>
       </Tabs>
 
