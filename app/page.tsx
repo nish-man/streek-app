@@ -12,7 +12,9 @@ import { Welcome } from "@/components/welcome"
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("challenges")
-  const { data: session, status } = useSession()
+  const { data: session, status } = useSession({
+    required: false,
+  })
 
   if (status === "loading") {
     return (
