@@ -15,7 +15,7 @@ declare module "next-auth" {
 // Debug mode is enabled in development for better error messages
 const handler = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
+  debug: true, // Enable debug logs to see what's happening
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -37,6 +37,7 @@ const handler = NextAuth({
             image: "https://avatars.githubusercontent.com/u/1234567",
           }
         }
+        console.log("Auth failed:", credentials?.email) // Add logging
         return null
       }
     })
